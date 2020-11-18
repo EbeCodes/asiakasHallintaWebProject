@@ -21,6 +21,8 @@ public class Dao {
 		String path = System.getProperty("catalina.base");
 		// Tuo pathiin Eclipsen projektikansion jossa tietokanta nyt sijaitsee
 		path = path.substring(0, path.indexOf(".metadata")).replace("\\", "/");
+		// Sijoitetaan kanta WebContent kansioon ja lis‰t‰‰n se polkuun
+		path += "asiakasHallinta/WebContent/";
 		String url = "jdbc:sqlite:" + path + db;
 		try {
 			Class.forName("org.sqlite.JDBC");
