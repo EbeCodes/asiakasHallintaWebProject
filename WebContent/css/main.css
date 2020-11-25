@@ -20,4 +20,21 @@ td {
 }
 
 tr:hover {background-color: #f5f5f5;}
-tr:nth-child(even) {background-color: #f2f2f2;}
+tr:nth-child(even) {background-color: #f5f5f5;}
+tr:nth-child(even):hover {background-color: #f2f2f5;}
+
+.poista:hover{
+	color: red;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.menuitem{
+	cursor:pointer;
+	text-align:right;
+	font-weight: bold;
+}
+
+.menuitem:hover{
+	text-decoration: underline;
+}
