@@ -28,20 +28,47 @@ public class Asiakkaat extends HttpServlet {
 		System.out.println("Asiakkaat.doGet()");
 		//Kaivetaan hakusanaa PathInfosta
 		String hakusana = "";
+		ArrayList<Asiakas> asiakkaat=null;
+		String strJSON="";
+		//Her‰tet‰‰n Dao
+		Dao dao = new Dao();
 		String pathInfo = request.getPathInfo();
-		if(pathInfo!=null) {
+		//Haetaan kaikki asiakkaat pathinfo puuttuu
+		if(pathInfo==null) {
+			asiakkaat = dao.listaaKaikki();
+			//Muutetaan Arraylist JSON:iksi.
+			//K‰ytet‰‰n JSON objektia ja laitetaan sinne uusi elementti nimelt‰‰n asiakkaat.
+			//Pit‰‰ sis‰ll‰‰n autot ArrayListin
+			strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();	
+			
+		//Jos on sana haeyksi, jolloin haetaan yksi asiakas
+		}else if(pathInfo.indexOf("haeyksi")!=-1) {
+			//pudotetaan pathinfosta pois /haeyksi/, jolloin j‰ljelle j‰‰ asiakas_id
+			String asiakas_id = pathInfo.replace("/haeyksi/", "");
+			//Luodaan asiakasobjekti johon haetaan tiedot kannasta id:n mukaan
+			Asiakas asiakas = dao.etsiAsiakas(asiakas_id);
+			if(asiakas==null) {
+				//Jos asiakasta ei lˆydy, palautetaan tyhj‰ JSON
+				strJSON = "{}";
+			}else {
+				JSONObject JSON = new JSONObject();
+				JSON.put("asiakas_id", Integer.toString(asiakas.getAsiakas_id()));
+				JSON.put("etunimi", asiakas.getEtunimi());
+				JSON.put("sukunimi", asiakas.getSukunimi());
+				JSON.put("puhelin", asiakas.getPuhelin());
+				JSON.put("sposti", asiakas.getSposti());	
+				strJSON = JSON.toString();
+			}
+		
+		//Muusssa tapauksessa suoritetaan haku hakusanalla, joka lˆytyy polusta
+		}else {
 			//Tiputetaan pois ensimm‰inen merkki hausta, joka on siis kauttaviiva
 			hakusana = pathInfo.substring(1, pathInfo.length());
+			//Pyydet‰‰n listaamaan kaikki autot ja v‰litet‰‰n hakusana parametri
+			asiakkaat = dao.listaaKaikki(hakusana);
+			strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();
 		}
-		//Her‰tet‰‰n Dao ja pyydet‰‰n sielt‰ autot ArrayList
-		Dao dao = new Dao();
-		//Pyydet‰‰n listaamaan kaikki autot ja v‰litet‰‰n hakusana parametri
-		ArrayList<Asiakas> asiakkaat = dao.listaaKaikki(hakusana);
-		System.out.println(asiakkaat);
-		//Muutetaan Arraylist JSON:iksi.
-		//K‰ytet‰‰n JSON objektia ja laitetaan sinne uusi elementti nimelt‰‰n asiakkaat.
-		//Pit‰‰ sis‰ll‰‰n autot ArrayListin
-		String strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();
+		
 		//Kirjoitetaan JSON servletin html rajapintaan
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
@@ -73,6 +100,23 @@ public class Asiakkaat extends HttpServlet {
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("Asiakkaat.doPut()");
+		//Muutetaan kutsun mukana tuleva json-string json-objektiksi
+		JSONObject jsonObj = new JsonStrToObj().convert(request);	
+		Asiakas asiakas = new Asiakas();
+		int asiakas_id = Integer.parseInt(jsonObj.getString("asiakas_id"));
+		asiakas.setAsiakas_id(asiakas_id);
+		asiakas.setEtunimi(jsonObj.getString("etunimi"));
+		asiakas.setSukunimi(jsonObj.getString("sukunimi"));
+		asiakas.setPuhelin(jsonObj.getString("puhelin"));
+		asiakas.setSposti(jsonObj.getString("sposti"));
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
+		Dao dao = new Dao();			
+		if(dao.muutaAsiakas(asiakas)){ //metodi palauttaa true/false
+			out.println("{\"response\":1}");  //Auton muuttaminen onnistui {"response":1}
+		}else{
+			out.println("{\"response\":0}");  //Auton muuttaminen ep‰onnistui {"response":0}
+		}		
 	}
 
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

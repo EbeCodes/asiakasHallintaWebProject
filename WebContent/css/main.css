@@ -29,6 +29,12 @@ tr:nth-child(even):hover {background-color: #f2f2f5;}
 	cursor: pointer;
 }
 
+.muuta:hover{
+	color: orange;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
 .menuitem{
 	cursor:pointer;
 	text-align:right;
@@ -37,4 +43,9 @@ tr:nth-child(even):hover {background-color: #f2f2f5;}
 
 .menuitem:hover{
 	text-decoration: underline;
+}
+
+.ilmo{
+	font-family: Arial;
+	font-size: 11pt;
 }

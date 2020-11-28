@@ -25,7 +25,7 @@
 			<th>Sukunimi</th>
 			<th>Puhelinnumero</th>
 			<th>S‰hkˆposti</th>
-			<!-- Tyhj‰ solu poista-linkille -->
+			<!-- Tyhj‰ solu muuta- ja poista-linkille -->
 			<th></th>
 		</tr>
 	</thead>
@@ -36,12 +36,12 @@
 <script>
 
 $(document).ready(function(){
-	//Uuden asiakkaan klikkaaminen
-		$("#uusiAsiakas").click(function(){
-		document.location="lisaaasiakas.jsp";
-	});
-	
+	//Haetaan asiakkaat kutsumalla funktiota
 	haeAsiakkaat();
+	//Uuden asiakkaan klikkaaminen
+	$("#uusiAsiakas").click(function(){
+	document.location="lisaaasiakas.jsp";
+	});
 	//Tehd‰‰n hakunapille funktio (kuuntelija)
 	$("#hakunappi").click(function(){
 		haeAsiakkaat();
@@ -71,8 +71,10 @@ function haeAsiakkaat(){
 			htmlStr+="<td>"+field.sukunimi+"</td>"
 			htmlStr+="<td>"+field.puhelin+"</td>"
 			htmlStr+="<td>"+field.sposti+"</td>"
-			//Luodaan posta painike, joka kutsuu poista dunktiota johon v‰litet‰‰n asiakas_id
-			htmlStr+="<td><span class='poista' onclick=poista('"+field.asiakas_id+"')>Poista</span></td>"
+			//Luodaan muuta linkki, joka kutsuu muuta-funktiota johon v‰litet‰‰n asiakas_id
+			htmlStr+="<td><span class='muuta' onclick=muuta('"+field.asiakas_id+"')>Muuta</span>&nbsp;&nbsp;"
+			//Luodaan posita linkki, joka kutsuu poista-funktiota johon v‰litet‰‰n asiakas_id
+			htmlStr+="<span class='poista' onclick=poista('"+field.asiakas_id+"')>Poista</span></td>"
 			htmlStr+="</tr>"
 			//Lis‰t‰‰n listaus eli html stringi htmlStr tbodyyn
 			$("#listaus tbody").append(htmlStr);
@@ -96,6 +98,11 @@ function poista(asiakas_id){
 			}
 	    }});
 	}
+}
+
+//Kuunnellaan muuta linkin klikkausta
+function muuta(asiakas_id){
+	document.location="muutaasiakas.jsp?asiakas_id=" + asiakas_id;
 }
 
 </script>

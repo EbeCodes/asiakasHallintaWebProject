@@ -8,16 +8,17 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.15.0/jquery.validate.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/main.css">
-<title>Asiakashallinta - Lis‰ys</title>
+<title>Asiakashallinta - Muuta</title>
 </head>
 <body>
 <form id="tiedot">
 	<table>
 		<thead>	
 			<tr>
-				<th colspan="5" class="menuitem"><span id="takaisin">Takaisin listaukseen</span></th>
+				<th colspan="6" class="menuitem"><span id="takaisin">Takaisin listaukseen</span></th>
 			</tr>		
 			<tr>
+				<th>ID</th>
 				<th>Etunimi</th>
 				<th>Sukunimi</th>
 				<th>Puhelinnumero</th>
@@ -27,26 +28,39 @@
 		</thead>
 		<tbody>
 			<tr>
+				<td><input type="text" name="asiakas_id" id="asiakas_id" style="color: gray; background-color: rgb(220,220,220);" readonly></td>
 				<td><input type="text" name="etunimi" id="etunimi"></td>
 				<td><input type="text" name="sukunimi" id="sukunimi"></td>
 				<td><input type="text" name="puhelin" id="puhelin"></td>
 				<td><input type="text" name="sposti" id="sposti"></td> 
-				<td><input type="submit" id="tallenna" value="Lis‰‰"></td>
+				<td><input type="submit" id="tallenna" value="Muuta"></td>
 			</tr>
 		</tbody>
 	</table>
 </form>
 <span id="ilmo" class="ilmo"></span>
 </body>
-
 <script>
 $(document).ready(function(){
+	
 	//Kuunnellaan paluulinkin klikkausta ja ohjataan listaukseen
 	$("#takaisin").click(function(){
 		document.location="listaaasiakkaat.jsp";
 	});
 	
-	//Validoidaan kenttiin syˆtettyj‰ arvoja
+	//Haetaan muutettavan asiakkaan tiedot lomakkeen kenttiin.
+	//Kutsutaan backin GET-metodia ja v‰litet‰‰n kutsun mukana asiakas_id
+	//GET /asiakkaat/haeyksi/<asiakas_id>
+	var asiakas_id = requestURLParam("asiakas_id"); //Tallenetaan muuttuja URL:sta. Funktio lˆytyy scripts/main.js 	
+	$.ajax({url:"asiakkaat/haeyksi/"+asiakas_id, type:"GET", dataType:"json", success:function(result){	
+		$("#asiakas_id").val(asiakas_id);
+		$("#etunimi").val(result.etunimi);		
+		$("#sukunimi").val(result.sukunimi);	
+		$("#puhelin").val(result.puhelin);
+		$("#sposti").val(result.sposti);
+    }});
+	
+	//Validoidaan kenttiin syˆtetyt arvot
 	$("#tiedot").validate({						
 		rules: {
 			etunimi:  {
@@ -85,28 +99,25 @@ $(document).ready(function(){
 			}
 		},			
 		submitHandler: function(form) {	
-			lisaaTiedot();
+			muutaTiedot();
 		}		
 	}); 	
 });
-//Vied‰‰n tiedot rest:iin
-function lisaaTiedot(){	
+
+//funktio tietojen p‰ivitt‰mist‰ varten. Kutsutaan backin PUT-metodia ja v‰litet‰‰n kutsun mukana uudet tiedot json-stringin‰.
+//PUT /autot/
+function muutaTiedot(){
 	var formJsonStr = formDataJsonStr($("#tiedot").serializeArray()); //muutetaan lomakkeen tiedot json-stringiksi
-	$.ajax({url:"asiakkaat", data:formJsonStr, type:"POST", dataType:"json", success:function(result) {
-		//Dao:sta tuleva result on joko {"response:1"} tai {"response:0"}       
+	$.ajax({url:"asiakkaat", data:formJsonStr, type:"PUT", dataType:"json", success:function(result) { //result on joko {"response:1"} tai {"response:0"}       
 		if(result.response==0){
-      	$("#ilmo").html("Asiakkaan lis‰‰minen ep‰onnistui.");
+      	$("#ilmo").html("Asiakkaan p‰ivitt‰minen ep‰onnistui.");
       }else if(result.response==1){			
-      	$("#ilmo").html("Asiakkaan lis‰‰minen onnistui.");
-      	//Tyhjennet‰‰n kent‰t jos lis‰‰minen onnistui
-      	$("#etunimi").val("");
-      	$("#sukunimi").val("");
-      	$("#puhelin").val("");
-      	$("#sposti").val("");
-      	
-		}
+      	$("#ilmo").html("Asiakkaan p‰ivitt‰minen onnistui.");
+      	//Nollataan arvot
+      	$("#asiakas_id", "#etunimi", "#sukunimi", "#puhelin", "#sposti").val("");
+	  }
   }});	
-}
+};
 
 </script>
 </html>
